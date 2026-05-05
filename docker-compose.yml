@@ -1,0 +1,36 @@
+# All pipelines defined as services.
+# Each service uses the same image but runs a different command.
+# Secrets are injected at runtime via env_file — never baked into images.
+
+services:
+
+  feature_pipeline:
+    build: .
+    container_name: asteroid-feature-pipeline
+    env_file: .env.local
+    command: python -m src.feature_pipeline.pipeline --mode incremental
+
+  feature_pipeline_weekly:
+    build: .
+    container_name: asteroid-feature-pipeline-weekly
+    env_file: .env.local
+    command: python -m src.feature_pipeline --mode weekly
+
+  feature_pipeline_backfill:
+    build: .
+    container_name: asteroid-feature-pipeline-backfill
+    env_file: .env.local
+    command: python -m src.feature_pipeline --mode backfill --max-pages 5
+
+  training_pipeline:
+    build: .
+    container_name: asteroid-training-pipeline
+    env_file: .env.local
+    command: python -m src.training_pipeline
+
+  inference_pipeline:
+    build: .
+    container_name: asteroid-inference-pipeline
+    env_file: .env.local
+    command: python -m src.inference_pipeline
+
