@@ -56,7 +56,6 @@ class HopsworksConnectionManager:
         """Check if connection is active."""
         return self._project is not None
 
-    # ─── Properties ─────────────────────────
 
     @property
     def project(self):

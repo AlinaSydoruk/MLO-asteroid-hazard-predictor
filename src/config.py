@@ -1,4 +1,3 @@
-# src/config.py
 """
 Global configuration
 """

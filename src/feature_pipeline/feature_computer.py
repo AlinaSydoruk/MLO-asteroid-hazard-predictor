@@ -1,4 +1,3 @@
-"""Feature engineering. Pure functions only — no I/O, no API calls."""
 import pandas as pd
 import numpy as np
 

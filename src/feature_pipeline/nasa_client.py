@@ -1,9 +1,3 @@
-# src/nasa_client.py
-"""
-NASA NeoWs API Client.
-Responsible ONLY for HTTP communication with NASA API.
-No feature engineering, no parsing — just raw API responses.
-"""
 import time
 import requests
 from pathlib import Path
@@ -31,15 +25,17 @@ class NASAClient:
         base_url: str = NASA_BASE_URL,
         max_retries: int = NASA_MAX_RETRIES,
         retry_delay: float = NASA_RETRY_DELAY_SECONDS,
+        timeout: int = NASA_TIMEOUT_SECONDS,
     ):
         self.api_key = api_key
         self.base_url = base_url
         self.max_retries = max_retries
         self.retry_delay = retry_delay
+        self.timeout = timeout
         self.session = requests.Session()
 
 
-    def _get(self, endpoint: str, params: dict = None) -> dict:
+    def get(self, endpoint: str, params: dict = None) -> dict:
         """
         Send a GET request to NASA API.
 
@@ -57,7 +53,7 @@ class NASAClient:
 
         for attempt in range(1, self.max_retries + 1):
             try:
-                response = self.session.get(url, params=params, timeout=30)
+                response = self.session.get(url, params=params, timeout=self.timeout)
                 response.raise_for_status()
                 return response.json()
 

@@ -1,8 +1,3 @@
-"""
-Feature View Repository.
-Single responsibility: manage the asteroid_pha_view Feature View.
-Used by training pipeline and inference pipeline.
-"""
 import pandas as pd
 from datetime import datetime
 

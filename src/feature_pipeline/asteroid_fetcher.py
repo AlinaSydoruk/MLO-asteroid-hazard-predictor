@@ -1,7 +1,3 @@
-"""
-Asteroid Fetcher — high-level NASA endpoint logic.
-Knows WHAT to fetch and WHEN. Uses NASAClient for HTTP.
-"""
 import time
 from datetime import date, timedelta
 
@@ -27,7 +23,7 @@ class AsteroidFetcher:
 
     def get_feed(self, start_date: str, end_date: str) -> dict:
         """Fetch asteroids by close approach date (max 7-day window)."""
-        return self.client._get(
+        return self.client.get(
             NASA_FEED_ENDPOINT,
             params={"start_date": start_date, "end_date": end_date},
         )
@@ -52,7 +48,7 @@ class AsteroidFetcher:
 
     def get_browse(self, page: int = 0) -> dict:
         """Fetch one page of the full asteroid dataset."""
-        return self.client._get(
+        return self.client.get(
             NASA_BROWSE_ENDPOINT,
             params={"page": page, "size": NASA_BROWSE_PAGE_SIZE},
         )
@@ -85,4 +81,4 @@ class AsteroidFetcher:
 
     def get_asteroid(self, asteroid_id: str) -> dict:
         """Look up one specific asteroid by NASA JPL ID."""
-        return self.client._get(f"/neo/{asteroid_id}")
+        return self.client.get(f"/neo/{asteroid_id}")

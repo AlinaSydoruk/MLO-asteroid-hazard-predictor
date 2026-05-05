@@ -1,7 +1,7 @@
-"""Logging helper"""
 import logging
 import sys
 
+"""Logging helper"""
 
 def get_logger(name: str) -> logging.Logger:
     """Return a configured logger for any module."""
