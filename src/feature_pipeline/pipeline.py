@@ -59,10 +59,10 @@ class FeaturePipeline:
         log.info("Weekly run complete.")
         return df
 
-    def run_backfill(self, max_pages: int = None) -> pd.DataFrame:
+    def run_backfill(self, max_pages: int = None, start_page: int = 0) -> pd.DataFrame:
         """Fetch ALL historical asteroids and run once at start."""
         log.info(f"Running BACKFILL (max_pages={max_pages})...")
-        pages = self.fetcher.get_all_pages(max_pages=max_pages)
+        pages = self.fetcher.get_all_pages(max_pages=max_pages, start_page=start_page)
         df = self.parser.parse_all_browse_pages(pages)
         log.info(f"Parsed {len(df)} unique asteroids")
         df = compute_features(df)
@@ -84,6 +84,7 @@ def main():
         choices=["incremental", "weekly", "backfill", "create-feature-view"],
         default="incremental",
     )
+    parser.add_argument("--start-page", type=int, default=0)
     parser.add_argument("--max-pages", type=int, default=None)
     parser.add_argument("--start-date", type=str, default=None)
     args = parser.parse_args()
@@ -95,7 +96,7 @@ def main():
     elif args.mode == "weekly":
         pipeline.run_weekly(start_date=args.start_date)
     elif args.mode == "backfill":
-        pipeline.run_backfill(max_pages=args.max_pages)
+        pipeline.run_backfill(max_pages=args.max_pages, start_page=args.start_page)
     elif args.mode == "create-feature-view":
         pipeline.create_feature_view()
 

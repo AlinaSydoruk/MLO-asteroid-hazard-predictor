@@ -50,3 +50,21 @@ MLFLOW_TRACKING_PASSWORD = os.environ["MLFLOW_TRACKING_PASSWORD"]
 EXPERIMENT_NAME = "asteroid_pha_classifier"
 MODEL_NAME = "asteroid_pha_classifier"
 MODEL_ALIAS = "champion"
+
+
+# ─────────────────────────────────────────
+# XGBoost model parameters
+# ─────────────────────────────────────────
+
+XGBOOST_PARAMS = {
+    "max_depth": 3,
+    "learning_rate": 0.05,
+    "n_estimators": 300,
+    "eval_metric": "auc",
+    "random_state": 42,
+    "verbosity": 0,
+}
+FEATURE_IMPORTANCE_TYPE = "gain"
+TEST_SIZE = 0.2
+AUTO_PROMOTE_MODEL = True
+PROMOTION_METRIC = "f1"

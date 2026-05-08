@@ -62,32 +62,13 @@ class FeatureViewRepository:
         log.info(f"Feature view ready: {self.name}")
         return self._fv
 
-    def get_training_data(
-        self,
-        test_size: float = 0.2,
-        training_dataset_version: int = 1,
-    ) -> tuple:
-        """
-        Get train/test split for model training.
-
-        Args:
-            test_size: fraction for test set (default 0.2 = 20%)
-            training_dataset_version: version to create in Hopsworks
-        Returns:
-            (X_train, X_test, y_train, y_test) tuple
-        """
+    def get_training_data(self, test_size: float = 0.2) -> tuple:
         fv = self.get_or_create()
-        log.info(f"Getting training data (test_size={test_size})...")
-
-        X_train, X_test, y_train, y_test = fv.train_test_split(
+        log.info("Creating new training dataset snapshot...")
+        return fv.train_test_split(
             test_size=test_size,
             description=f"Training dataset created {datetime.now().date()}",
         )
-        log.info(
-            f"Training set: {len(X_train)} rows | "
-            f"Test set: {len(X_test)} rows"
-        )
-        return X_train, X_test, y_train, y_test
 
 
     def get_batch_data(

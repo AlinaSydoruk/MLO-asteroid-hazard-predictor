@@ -5,7 +5,7 @@ class AsteroidParser:
     """Parses NASA NeoWs API responses into DataFrames."""
 
     def parse_feed(self, raw: dict) -> pd.DataFrame:
-        """Parse /feed response — keyed by date."""
+        """Parse /feed response keyed by date."""
         records = []
         for date_str, asteroids in raw["near_earth_objects"].items():
             for ast in asteroids:
@@ -15,7 +15,7 @@ class AsteroidParser:
         return pd.DataFrame(records)
 
     def parse_browse(self, raw: dict) -> pd.DataFrame:
-        """Parse /browse response (one page) — flat list."""
+        """Parse /browse response (one page) flat list."""
         records = []
         for ast in raw.get("near_earth_objects", []):
             record = self._extract_record(ast)
@@ -33,7 +33,7 @@ class AsteroidParser:
         return combined.drop_duplicates(subset=["asteroid_id"])
 
     def parse_lookup(self, raw: dict) -> pd.DataFrame:
-        """Parse /neo/{id} — single asteroid, all close approaches."""
+        """Parse a single asteroid, all close approaches."""
         records = []
         for ca in raw.get("close_approach_data", []):
             record = self._extract_record(raw, ca["close_approach_date"])

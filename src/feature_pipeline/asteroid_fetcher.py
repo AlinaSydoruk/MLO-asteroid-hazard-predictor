@@ -53,10 +53,10 @@ class AsteroidFetcher:
             params={"page": page, "size": NASA_BROWSE_PAGE_SIZE},
         )
 
-    def get_all_pages(self, max_pages: int = None) -> list[dict]:
-        """Fetch ALL pages of /browse endpoint. Used for backfill."""
+    def get_all_pages(self, max_pages: int = None, start_page: int = 0) -> list[dict]:
+        """Fetch pages of /browse endpoint. Used for backfill."""
         pages = []
-        page = 0
+        page = start_page  # ← start from wherever you want
 
         while True:
             log.info(f"Fetching browse page {page}...")
@@ -66,8 +66,8 @@ class AsteroidFetcher:
             total_pages = raw["page"]["total_pages"]
             log.info(f"  Page {page + 1}/{total_pages}")
 
-            if max_pages and page >= max_pages - 1:
-                log.info(f"Stopped at max_pages={max_pages}")
+            if max_pages and page >= start_page + max_pages - 1:  # ← count from start_page
+                log.info(f"Stopped after {max_pages} pages")
                 break
             if page >= total_pages - 1:
                 log.info(f"All {total_pages} pages fetched.")

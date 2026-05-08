@@ -40,27 +40,3 @@ def compute_features(asteroid_df: pd.DataFrame) -> pd.DataFrame:
 
     return asteroid_df
 
-
-def get_feature_columns() -> list[str]:
-    """feature columns"""
-    return [
-        "est_diameter_min_km",
-        "est_diameter_max_km",
-        "est_diameter_mean_km",
-        "relative_velocity_kmh",
-        "relative_velocity_kms",
-        "miss_distance_km",
-        "miss_distance_lunar",
-        "miss_distance_astronomical",
-        "absolute_magnitude_h",
-        "is_sentry_object",
-        "diameter_to_distance_ratio",
-        "kinetic_energy_proxy",
-        "log_miss_distance_km",
-        "log_kinetic_energy_proxy",
-    ]
-
-
-def get_label_column() -> str:
-    """Single source of truth for the label column name."""
-    return "is_potentially_hazardous"
