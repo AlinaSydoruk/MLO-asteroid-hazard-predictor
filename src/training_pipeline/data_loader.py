@@ -41,8 +41,8 @@ class TrainingDataLoader:
         log.info("Test set: %s rows", len(X_test))
         log.info(
             "Hazardous rate — train: %.2f%% | test: %.2f%%",
-            y_train.mean() * 100,
-            y_test.mean() * 100,
+            y_train.mean().iloc[0] * 100,
+            y_train.test().iloc[0] * 100,
         )
 
         return X_train, X_test, y_train, y_test
