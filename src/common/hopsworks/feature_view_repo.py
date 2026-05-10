@@ -7,6 +7,7 @@ from src.config import (
 )
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager
 from src.common.hopsworks.feature_group_repo import FeatureGroupRepository
+from src.common.feature_schema import get_identity_columns
 from src.utils import get_logger
 
 log = get_logger(__name__)
@@ -47,11 +48,7 @@ class FeatureViewRepository:
 
         # Select all columns except identity columns
         # (asteroid_id, name are not useful features for the model)
-        query = fg.select_except([
-            "asteroid_id",
-            "name",
-            "close_approach_date",
-        ])
+        query = fg.select_except(get_identity_columns())
 
         self._fv = self.connection.feature_store.get_or_create_feature_view(
             name=self.name,

@@ -61,7 +61,7 @@ class ModelRegistryRepository:
             signature = infer_signature(X_sample, model.predict(X_sample))
             mlflow.xgboost.log_model(
                 model,
-                artifact_path="model",
+                name="model",
                 signature=signature,
                 registered_model_name=self.model_name,
             )
