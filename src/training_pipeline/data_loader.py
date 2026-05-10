@@ -1,7 +1,7 @@
 import pandas as pd
 
 from src.config import TEST_SIZE
-from src.feature_pipeline.hopsworks.feature_view_repo import FeatureViewRepository
+from src.common.hopsworks.feature_view_repo import FeatureViewRepository
 from src.common.feature_schema import get_feature_columns
 from src.utils import get_logger
 
@@ -39,10 +39,5 @@ class TrainingDataLoader:
             X_train.shape[1],
         )
         log.info("Test set: %s rows", len(X_test))
-        log.info(
-            "Hazardous rate — train: %.2f%% | test: %.2f%%",
-            y_train.mean().iloc[0] * 100,
-            y_train.test().iloc[0] * 100,
-        )
 
         return X_train, X_test, y_train, y_test

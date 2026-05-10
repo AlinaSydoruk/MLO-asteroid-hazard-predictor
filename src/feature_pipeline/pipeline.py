@@ -6,9 +6,9 @@ from src.feature_pipeline.nasa_client import NASAClient
 from src.feature_pipeline.asteroid_fetcher import AsteroidFetcher
 from src.feature_pipeline.asteroid_parser import AsteroidParser
 from src.feature_pipeline.feature_computer import compute_features
-from src.feature_pipeline.hopsworks.connection_manager import HopsworksConnectionManager
-from src.feature_pipeline.hopsworks.feature_group_repo import FeatureGroupRepository
-from src.feature_pipeline.hopsworks.feature_view_repo import FeatureViewRepository
+from src.common.hopsworks.connection_manager import HopsworksConnectionManager
+from src.common.hopsworks.feature_group_repo import FeatureGroupRepository
+from src.common.hopsworks.feature_view_repo import FeatureViewRepository
 from src.utils import get_logger
 
 log = get_logger(__name__)

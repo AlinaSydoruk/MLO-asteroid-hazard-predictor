@@ -5,8 +5,8 @@ from src.config import (
     FEATURE_VIEW_NAME,
     FEATURE_VIEW_VERSION,
 )
-from src.feature_pipeline.hopsworks.connection_manager import HopsworksConnectionManager
-from src.feature_pipeline.hopsworks.feature_group_repo import FeatureGroupRepository
+from src.common.hopsworks.connection_manager import HopsworksConnectionManager
+from src.common.hopsworks.feature_group_repo import FeatureGroupRepository
 from src.utils import get_logger
 
 log = get_logger(__name__)

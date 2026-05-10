@@ -4,7 +4,7 @@ from src.config import (
     FEATURE_GROUP_NAME,
     FEATURE_GROUP_VERSION,
 )
-from src.feature_pipeline.hopsworks.connection_manager import HopsworksConnectionManager
+from src.common.hopsworks.connection_manager import HopsworksConnectionManager
 from src.utils import get_logger
 
 log = get_logger(__name__)
