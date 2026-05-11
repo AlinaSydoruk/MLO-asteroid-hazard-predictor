@@ -4,6 +4,7 @@ from src.training_pipeline.evaluator import ModelEvaluator
 from src.training_pipeline.mlflow.connection import MLflowConnection
 from src.training_pipeline.mlflow.model_registry_repo import ModelRegistryRepository
 from src.utils import get_logger
+from src.config import PROMOTION_METRIC
 
 log = get_logger(__name__)
 
@@ -33,10 +34,10 @@ class TrainingPipeline:
         log.info("Starting TRAINING pipeline")
         log.info("Loading data from Feature Store...")
 
-        X_train, X_test, y_train, y_test = self.data_loader.load()
+        X_train, X_val, X_test, y_train, y_val, y_test = self.data_loader.load()
 
         log.info("Training XGBoost...")
-        model = self.trainer.train(X_train, y_train, X_test, y_test)
+        model = self.trainer.train(X_train, y_train, X_val, y_val)
 
         log.info("Evaluating on test set...")
         metrics = self.evaluator.evaluate(model, X_test, y_test)
@@ -61,11 +62,8 @@ class TrainingPipeline:
         else:
             log.info("Current champion retained.")
 
-        log.info("    Training pipeline complete")
-        log.info(f"   Run ID:  {run_id}")
-        log.info(f"   ROC-AUC: {metrics['roc_auc']:.4f}")
-        log.info(f"   F1:      {metrics['f1']:.4f}")
-        log.info(f"   Recall:  {metrics['recall']:.4f}")
+        log.info("Training pipeline complete")
+        log.info(f"Run ID:  {run_id}")
 
         return metrics
 
@@ -73,7 +71,7 @@ class TrainingPipeline:
 def main():
     pipeline = TrainingPipeline(
         auto_promote=True,
-        promotion_metric="f1",
+        promotion_metric=PROMOTION_METRIC,
     )
     pipeline.run()
 

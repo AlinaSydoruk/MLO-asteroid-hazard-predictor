@@ -85,7 +85,7 @@ class FeaturePipeline:
         return df
 
     def create_feature_view(self) -> None:
-        """Create the Feature View for training/inference pipelines."""
+        """Create the Feature View."""
         log.info("Creating feature view...")
         self.feature_view.get_or_create()
         log.info("Feature view created.")

@@ -6,10 +6,13 @@ def compute_features(df: pd.DataFrame) -> pd.DataFrame:
     """Engineer features from the flat asteroid DataFrame."""
     df = df.copy()
 
+
+    #TODO delete all useless features
+
     # Size estimate
     df["est_diameter_mean_km"] = (df["est_diameter_min_km"] + df["est_diameter_max_km"]) / 2
 
-    # Size / distance ratio — bigger ratio = more dangerous
+    # Size
     df["diameter_to_distance_ratio"] = (
             df["est_diameter_mean_km"] / df["miss_distance_km"].clip(lower=1e-9)
     )
@@ -26,10 +29,8 @@ def compute_features(df: pd.DataFrame) -> pd.DataFrame:
     # Drop rows with missing critical values
     df = df.dropna(subset=[
         "est_diameter_min_km",
-        "est_diameter_max_km",
-        "relative_velocity_kmh",
-        "miss_distance_km",
         "absolute_magnitude_h",
+        "moid_au"
     ])
 
     # Enforce types

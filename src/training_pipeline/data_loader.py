@@ -23,21 +23,20 @@ class TrainingDataLoader:
         self.feature_view_repo = feature_view_repo or FeatureViewRepository()
         self.test_size = test_size
 
-    def load(self) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-        log.info("Loading training data with test_size=%.2f...", self.test_size)
-        X_train, X_test, y_train, y_test = (
-            self.feature_view_repo.get_training_data(test_size=self.test_size)
+    def load(self) -> tuple:
+        """ Returns: X_train, X_val, X_test, y_train, y_val, y_test """
+        log.info("Loading training data...")
+        X_train, X_val, X_test, y_train, y_val, y_test = (
+            self.feature_view_repo.get_training_data()
         )
 
         feature_cols = get_feature_columns()
         X_train = X_train[feature_cols]
+        X_val = X_val[feature_cols]
         X_test = X_test[feature_cols]
 
-        log.info(
-            "Training set: %s rows, %s features",
-            len(X_train),
-            X_train.shape[1],
-        )
-        log.info("Test set: %s rows", len(X_test))
+        log.info("Train: %s rows | Val: %s rows | Test: %s rows",
+                 len(X_train), len(X_val), len(X_test))
+        log.info("Features: %s", X_train.shape[1])
 
-        return X_train, X_test, y_train, y_test
+        return X_train, X_val, X_test, y_train, y_val, y_test

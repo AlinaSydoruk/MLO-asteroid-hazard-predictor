@@ -70,19 +70,3 @@ class FeatureGroupRepository:
         fg = self.get_or_create()
         return fg.read()
 
-    def read_by_date(self, start_date: str, end_date: str) -> pd.DataFrame:
-        """
-        Read features for a specific date range.
-
-        Args:
-            start_date: "YYYY-MM-DD"
-            end_date:   "YYYY-MM-DD"
-        Returns:
-            filtered DataFrame
-        """
-        df = self.read()
-        mask = (
-            (df["close_approach_date"] >= start_date) &
-            (df["close_approach_date"] <= end_date)
-        )
-        return df[mask]

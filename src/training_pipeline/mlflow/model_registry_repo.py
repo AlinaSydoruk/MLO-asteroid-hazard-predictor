@@ -39,18 +39,7 @@ class ModelRegistryRepository:
         feature_importance: dict,
         X_sample: pd.DataFrame,
     ) -> str:
-        """
-        Log a complete training run to MLflow.
-
-        Args:
-            model:               trained model
-            metrics:             evaluation metrics
-            params:              training hyperparameters
-            feature_importance:  feature importance dict
-            X_sample:            sample of training data for signature
-        Returns:
-            MLflow run_id
-        """
+        """ Log a complete training run to MLflow. """
         self.connection.connect()
 
         with mlflow.start_run() as run:

@@ -1,4 +1,6 @@
 import math
+from typing import Optional
+
 import pandas as pd
 import xgboost as xgb
 from src.utils import get_logger
@@ -18,25 +20,24 @@ class ModelTrainer:
             params: dict | None = None,
     ):
         self.params = params or XGBOOST_PARAMS.copy()
-        self.model: xgb.XGBClassifier | None = None
+        self.model: Optional[xgb.XGBClassifier] = None
 
     def train(
         self,
         X_train: pd.DataFrame,
         y_train: pd.Series,
-        X_eval: pd.DataFrame = None,
-        y_eval: pd.Series = None,
+        X_test: pd.DataFrame = None,
+        y_test: pd.Series = None,
     ) -> xgb.XGBClassifier:
         """
         Train XGBoost on given data.
-
         Args:
             X_train, y_train: training data
-            X_eval, y_eval:   optional eval set for monitoring during training
+            X_test, y_test:   optional eval set for testing
         Returns:
             trained XGBoost classifier
         """
-        # Handle class imbalance — PHAs are rare (~5-10%)
+        # Handle class imbalance, PHAs are rare
         scale_pos_weight = self._compute_class_weight(y_train)
         log.info(f"Class weight (negative/positive): {scale_pos_weight:.2f}")
 
@@ -47,14 +48,14 @@ class ModelTrainer:
         )
 
         # Fit
-        if X_eval is not None and y_eval is not None:
-            eval_set = [(X_eval, y_eval)]
+        if X_test is not None and y_test is not None:
+            test_set = [(X_test, y_test)]
         else:
-            eval_set = None
+            test_set = None
         log.info("Training XGBoost...")
         self.model.fit(
             X_train, y_train,
-            eval_set=eval_set,
+            eval_set=test_set,
             verbose=False,
         )
         log.info("Training complete.")
