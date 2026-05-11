@@ -7,6 +7,7 @@ from src.config import (
     NASA_BROWSE_ENDPOINT,
     NASA_MAX_FEED_DAYS,
     NASA_BROWSE_PAGE_SIZE,
+    NASA_NEO_ENDPOINT,
     NASA_POLITE_DELAY_SECONDS,
 )
 from src.utils import get_logger
@@ -81,4 +82,21 @@ class AsteroidFetcher:
 
     def get_asteroid(self, asteroid_id: str) -> dict:
         """Look up one specific asteroid by NASA JPL ID."""
-        return self.client.get(f"/neo/{asteroid_id}")
+        return self.client.get(f"{NASA_NEO_ENDPOINT}/{asteroid_id}")
+
+    def get_orbital_data(self, asteroid_ids: list[str]) -> dict[str, dict]:
+        """Get orbital_data for a list of asteroid IDs."""
+        orbital_data = {}
+
+        for asteroid_id in asteroid_ids:
+            try:
+                asteroid = self.get_asteroid(asteroid_id)
+                orbital_data[asteroid_id] = asteroid.get("orbital_data", {})
+                log.info(f"Fetched orbital data for {asteroid_id}")
+            except Exception as e:
+                log.warning(f"Failed to fetch orbital data for {asteroid_id}: {e}")
+                orbital_data[asteroid_id] = {}
+            time.sleep(NASA_POLITE_DELAY_SECONDS)
+
+        log.info(f"Fetched orbital data for {len(orbital_data)} asteroids")
+        return orbital_data

@@ -43,7 +43,6 @@ class FeatureGroupRepository:
         return self._fg
 
     def insert(self, df: pd.DataFrame) -> bool:
-        """Insert DataFrame into the Feature Group."""
         if df.empty:
             log.warning("Empty DataFrame, nothing to insert.")
             return False
@@ -52,7 +51,12 @@ class FeatureGroupRepository:
         log.info(f"Inserting {len(df)} rows into {self.name}...")
 
         try:
-            fg.insert(df, write_options={"wait_for_job": True})
+            job, execution = fg.insert(df, write_options={"wait_for_job": True})
+
+            if execution is not None and execution.final_status == "FAILED":
+                log.error("Materialization job FAILED. Data not written to offline store.")
+                raise RuntimeError(f"Hopsworks materialization failed: {execution.final_status}")
+
             log.info("Insert complete.")
             return True
 

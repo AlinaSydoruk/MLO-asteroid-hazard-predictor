@@ -21,6 +21,7 @@ NASA_API_KEY = os.environ["NASA_API_KEY"]
 NASA_BASE_URL = "https://api.nasa.gov/neo/rest/v1"
 NASA_FEED_ENDPOINT = "/feed"
 NASA_BROWSE_ENDPOINT = "/neo/browse"
+NASA_NEO_ENDPOINT = "/neo"
 NASA_MAX_FEED_DAYS = 7
 NASA_BROWSE_PAGE_SIZE = 20
 NASA_MAX_RETRIES = 3
@@ -35,11 +36,9 @@ HOPSWORKS_API_KEY = os.environ["HOPSWORKS_API_KEY"]
 HOPSWORKS_PROJECT_NAME = os.environ["HOPSWORKS_PROJECT_NAME"]
 HOPSWORKS_HOST = "eu-west.cloud.hopsworks.ai"
 FEATURE_GROUP_NAME = "asteroid_features"
-FEATURE_GROUP_VERSION = 1
+FEATURE_GROUP_VERSION = 2
 FEATURE_VIEW_NAME = "asteroid_pha_view"
-FEATURE_VIEW_VERSION = 1
-PREDICTIONS_GROUP_NAME = "asteroid_predictions"
-PREDICTIONS_GROUP_VERSION = 1
+FEATURE_VIEW_VERSION = 2
 
 # ─────────────────────────────────────────
 # MLflow / DagsHub

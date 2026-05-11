@@ -31,11 +31,16 @@ class FeaturePipeline:
         """Fetch today's asteroids, engineer features, store."""
         log.info("Running INCREMENTAL feature pipeline...")
 
-        raw = self.fetcher.get_today_feed()
-        total_raw = sum(len(v) for v in raw["near_earth_objects"].values())
-        log.info(f"NASA API returned {total_raw} raw asteroids")
+        feed_response = self.fetcher.get_today_feed()
 
-        df = self.parser.parse_feed(raw)
+        asteroid_count = sum(len(v) for v in feed_response["near_earth_objects"].values())
+        log.info(f"NASA API returned {asteroid_count} asteroids")
+
+        asteroid_ids = self._extract_asteroid_ids(feed_response)
+        orbital_data_by_id = self.fetcher.get_orbital_data(asteroid_ids)
+        enriched_feed = self._attach_orbital_data(feed_response, orbital_data_by_id)
+
+        df = self.parser.parse_feed(enriched_feed)
         log.info(f"Parsed {len(df)} records | "
                  f"Hazardous: {df['is_potentially_hazardous'].sum()}")
 
@@ -46,14 +51,23 @@ class FeaturePipeline:
             log.error("Pipeline failed, insert unsuccessful.")
             raise RuntimeError("Feature group insert failed")
 
-        log.info(" Incremental run complete.")
+        log.info("Incremental run complete.")
         return df
 
     def run_weekly(self, start_date: str = None) -> pd.DataFrame:
         """Fetch last 7 days of asteroids."""
         log.info(f"Running WEEKLY feature pipeline (start={start_date})...")
-        raw = self.fetcher.get_week_feed(start_date=start_date)
-        df = self.parser.parse_feed(raw)
+
+        feed_response = self.fetcher.get_week_feed(start_date=start_date)
+
+        asteroid_count = sum(len(v) for v in feed_response["near_earth_objects"].values())
+        log.info(f"NASA API returned {asteroid_count} asteroids")
+
+        asteroid_ids = self._extract_asteroid_ids(feed_response)
+        orbital_data_by_id = self.fetcher.get_orbital_data(asteroid_ids)
+        enriched_feed = self._attach_orbital_data(feed_response, orbital_data_by_id)
+
+        df = self.parser.parse_feed(enriched_feed)
         df = compute_features(df)
         self.feature_group.insert(df)
         log.info("Weekly run complete.")
@@ -76,6 +90,24 @@ class FeaturePipeline:
         self.feature_view.get_or_create()
         log.info("Feature view created.")
 
+
+    def _attach_orbital_data(
+            self,
+            raw_feed: dict,
+            orbital_data: dict[str, dict],
+    ) -> dict:
+        for date_str, asteroids in raw_feed["near_earth_objects"].items():
+            for ast in asteroids:
+                asteroid_id = ast["id"]
+                ast["orbital_data"] = orbital_data.get(asteroid_id, {})
+        return raw_feed
+
+    def _extract_asteroid_ids(self, raw_feed: dict) -> list[str]:
+        asteroid_ids = []
+        for asteroids in raw_feed["near_earth_objects"].values():
+            for ast in asteroids:
+                asteroid_ids.append(ast["id"])
+        return asteroid_ids
 
 def main():
     parser = argparse.ArgumentParser(description="Asteroid Feature Pipeline")
