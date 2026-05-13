@@ -10,7 +10,7 @@ from src.common.hopsworks.connection_manager import HopsworksConnectionManager
 from src.common.hopsworks.feature_group_repo import FeatureGroupRepository
 from src.common.feature_schema import get_identity_columns
 from src.utils import get_logger
-
+from src.feature_pipeline.main_features_repository import create_features_repository
 log = get_logger(__name__)
 
 
@@ -27,10 +27,7 @@ class FeatureViewRepository:
         self.name = name
         self.version = version
         self.connection = connection or HopsworksConnectionManager()
-        self.feature_group_repo = (
-            feature_group_repo or
-            FeatureGroupRepository(connection=self.connection)  # share same connection
-        )
+        self.feature_group_repo = feature_group_repo or create_features_repository(connection=connection)
         self._fv = None
 
     def get_or_create(self):
@@ -41,14 +38,11 @@ class FeatureViewRepository:
         log.info(f"Getting or creating feature view: {self.name} v{self.version}")
         fg = self.feature_group_repo.get_or_create()
 
-        # Select all columns except identity columns
-        # (asteroid_id, name are not useful features for the model)
-        query = fg.select_except(get_identity_columns())
 
         self._fv = self.connection.feature_store.get_or_create_feature_view(
             name=self.name,
             version=self.version,
-            query=query,
+            query=fg.select_all(), # select all columns
             labels=["is_potentially_hazardous"],
         )
         log.info(f"Feature view ready: {self.name}")
@@ -66,3 +60,22 @@ class FeatureViewRepository:
             test_size=test_size,
             description=f"Training dataset created {datetime.now().date()}",
         )
+
+
+    def get_batch_data(
+        self,
+        start_time: str = None,
+        end_time: str = None,
+    ) -> pd.DataFrame:
+        """ Get batch of features for inference."""
+
+        fv = self.get_or_create()
+        log.info(f"Getting batch data ({start_time} → {end_time})...")
+
+        df = fv.get_batch_data(
+            start_time=start_time,
+            end_time=end_time,
+        )
+        log.info(f"Batch data: {len(df)} rows | columns: {list(df.columns)}")
+        log.info(f"Batch data: {len(df)} rows")
+        return df

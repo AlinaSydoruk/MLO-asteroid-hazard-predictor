@@ -38,7 +38,7 @@ HOPSWORKS_HOST = "eu-west.cloud.hopsworks.ai"
 FEATURE_GROUP_NAME = "asteroid_features"
 FEATURE_GROUP_VERSION = 2
 FEATURE_VIEW_NAME = "asteroid_pha_view"
-FEATURE_VIEW_VERSION = 2
+FEATURE_VIEW_VERSION = 3
 
 # ─────────────────────────────────────────
 # MLflow / DagsHub
@@ -68,3 +68,7 @@ TEST_SIZE = 0.2
 VALIDATION_SIZE = 0.2
 AUTO_PROMOTE_MODEL = True
 PROMOTION_METRIC = "f1"
+
+
+PREDICTIONS_GROUP_NAME = "asteroid_predictions"
+PREDICTIONS_GROUP_VERSION = 1

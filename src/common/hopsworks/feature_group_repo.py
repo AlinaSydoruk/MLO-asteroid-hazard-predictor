@@ -1,9 +1,9 @@
+"""
+Generic Feature Group Repository.
+Wraps any Hopsworks Feature Group — features, predictions, or future groups.
+"""
 import pandas as pd
 
-from src.config import (
-    FEATURE_GROUP_NAME,
-    FEATURE_GROUP_VERSION,
-)
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager
 from src.utils import get_logger
 
@@ -11,23 +11,27 @@ log = get_logger(__name__)
 
 
 class FeatureGroupRepository:
-    """
-    Manages all Feature Group operations.
-    read/write the asteroid_features Feature Group.
-    """
+    """ Generic wrapper for any Hopsworks Feature Group."""
 
     def __init__(
         self,
-        name: str = FEATURE_GROUP_NAME,
-        version: int = FEATURE_GROUP_VERSION,
+        name: str,
+        version: int,
+        primary_key: list[str],
+        event_time: str,
+        description: str = "",
         connection: HopsworksConnectionManager = None,
     ):
         self.name = name
         self.version = version
+        self.primary_key = primary_key
+        self.event_time = event_time
+        self.description = description
         self.connection = connection or HopsworksConnectionManager()
         self._fg = None
 
     def get_or_create(self):
+        """Get existing feature group or create a new one."""
         if self._fg is not None:
             return self._fg
 
@@ -35,14 +39,15 @@ class FeatureGroupRepository:
         self._fg = self.connection.feature_store.get_or_create_feature_group(
             name=self.name,
             version=self.version,
-            primary_key=["asteroid_id", "close_approach_date"],
-            event_time="close_approach_date",
-            description="NEO asteroid features and PHA label",
+            primary_key=self.primary_key,
+            event_time=self.event_time,
+            description=self.description,
         )
         log.info(f"Feature group ready: {self.name}")
         return self._fg
 
     def insert(self, df: pd.DataFrame) -> bool:
+        """Insert DataFrame into the Feature Group."""
         if df.empty:
             log.warning("Empty DataFrame, nothing to insert.")
             return False
@@ -55,7 +60,9 @@ class FeatureGroupRepository:
 
             if execution is not None and execution.final_status == "FAILED":
                 log.error("Materialization job FAILED. Data not written to offline store.")
-                raise RuntimeError(f"Hopsworks materialization failed: {execution.final_status}")
+                raise RuntimeError(
+                    f"Hopsworks materialization failed: {execution.final_status}"
+                )
 
             log.info("Insert complete.")
             return True
@@ -70,3 +77,14 @@ class FeatureGroupRepository:
         fg = self.get_or_create()
         return fg.read()
 
+    def read_by_date(self, start_date: str, end_date: str) -> pd.DataFrame:
+        """
+        Read features for a specific date range.
+        Note: reads all data first then filters — acceptable for current size.
+        """
+        df = self.read()
+        mask = (
+            (df["close_approach_date"] >= start_date) &
+            (df["close_approach_date"] <= end_date)
+        )
+        return df[mask]

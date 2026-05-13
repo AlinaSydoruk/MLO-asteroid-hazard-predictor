@@ -21,7 +21,6 @@ class AsteroidFetcher:
     def __init__(self, client: NASAClient = None):
         self.client = client
 
-
     def get_feed(self, start_date: str, end_date: str) -> dict:
         """Fetch asteroids by close approach date (max 7-day window)."""
         return self.client.get(

@@ -7,7 +7,7 @@ from src.feature_pipeline.asteroid_fetcher import AsteroidFetcher
 from src.feature_pipeline.asteroid_parser import AsteroidParser
 from src.feature_pipeline.feature_computer import compute_features
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager
-from src.common.hopsworks.feature_group_repo import FeatureGroupRepository
+from src.feature_pipeline.main_features_repository import create_features_repository
 from src.common.hopsworks.feature_view_repo import FeatureViewRepository
 from src.utils import get_logger
 
@@ -21,7 +21,7 @@ class FeaturePipeline:
         connection = HopsworksConnectionManager()
         self.fetcher = AsteroidFetcher(client=NASAClient())
         self.parser = AsteroidParser()
-        self.feature_group = FeatureGroupRepository(connection=connection)
+        self.feature_group = create_features_repository(connection=connection)
         self.feature_view = FeatureViewRepository(
             connection=connection,
             feature_group_repo=self.feature_group,   # share same fg instance
