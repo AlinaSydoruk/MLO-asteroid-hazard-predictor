@@ -28,5 +28,13 @@ services:
     build: .
     container_name: asteroid-inference-pipeline
     env_file: .env.local
-    command: python -m src.feature_pipeline.pipeline
+    command: python -m src.inference_pipeline.pipeline
 
+  ui:
+    build: .
+    container_name: asteroid-ui
+    env_file: .env.local
+    command: python -m src.ui.app
+    ports:
+      - "7860:7860"
+    restart: unless-stopped
