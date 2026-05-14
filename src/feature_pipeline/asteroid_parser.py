@@ -90,6 +90,7 @@ class AsteroidParser:
             for our_name, api_name in ORBITAL_API_FIELDS.items():
                 record[our_name] = _to_float(orbital.get(api_name))
 
+            record["first_observation_date"] = orbital.get("first_observation_date")
             return record
 
         except (KeyError, TypeError, ValueError):

@@ -17,8 +17,7 @@ class PredictionsService:
 
     def get_by_range(self, start: date, end: date) -> pd.DataFrame:
         log.info(f"Fetching predictions {start} → {end}")
-        df = self.repo.read_by_date(start.isoformat(), end.isoformat())
-        return self._format(df)
+        return self.repo.read_by_date(start.isoformat(), end.isoformat())
 
     def get_today(self) -> pd.DataFrame:
         today = date.today()
@@ -37,12 +36,14 @@ class PredictionsService:
             "total": len(df),
             "hazardous": int(df["predicted_hazardous"].sum()),
             "safe": int((df["predicted_hazardous"] == 0).sum()),
+            "predicted": int((df["source"] == "model_prediction").sum()),  # ← new
             "avg_prob": float(df["hazard_probability"].mean()),
             "model": f"v{df['model_version'].iloc[0]}",
         }
 
+    # Display formatting
     @staticmethod
-    def _format(df: pd.DataFrame) -> pd.DataFrame:
+    def format_for_display(df: pd.DataFrame) -> pd.DataFrame:
         """Sort, label, and round for display."""
         if df.empty:
             return df
@@ -52,10 +53,11 @@ class PredictionsService:
         )
         df["hazard_probability"] = (df["hazard_probability"] * 100).round(2)
         return df[["name", "close_approach_date", "status",
-                   "hazard_probability", "asteroid_id"]].rename(columns={
+                   "hazard_probability", "source", "asteroid_id"]].rename(columns={
             "name": "Asteroid",
             "close_approach_date": "Close Approach",
             "status": "Status",
             "hazard_probability": "Hazard %",
+            "source": "Source",
             "asteroid_id": "ID",
         })

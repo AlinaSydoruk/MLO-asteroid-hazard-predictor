@@ -38,6 +38,6 @@ def compute_features(df: pd.DataFrame) -> pd.DataFrame:
     df["close_approach_date"] = pd.to_datetime(df["close_approach_date"])
     df["is_potentially_hazardous"] = df["is_potentially_hazardous"].astype(int)
     df["is_sentry_object"] = df["is_sentry_object"].astype(int)
-
+    df["first_observation_date"] = pd.to_datetime(df["first_observation_date"], errors="coerce")
     return df
 

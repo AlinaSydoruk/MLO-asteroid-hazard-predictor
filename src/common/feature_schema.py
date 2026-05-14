@@ -52,6 +52,7 @@ def get_identity_columns() -> list[str]:
         "asteroid_id",
         "name",
         "close_approach_date",
+        "first_observation_date",
     ]
 
 

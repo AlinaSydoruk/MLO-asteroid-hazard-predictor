@@ -16,7 +16,7 @@ services:
     build: .
     container_name: asteroid-feature-pipeline-backfill
     env_file: .env.local
-    command: python -m src.feature_pipeline.pipeline --mode backfill --max-pages 1000 --start-page 0
+    command: python -m src.feature_pipeline.pipeline --mode backfill --max-pages 10 --start-page 0
 
   training_pipeline:
     build: .

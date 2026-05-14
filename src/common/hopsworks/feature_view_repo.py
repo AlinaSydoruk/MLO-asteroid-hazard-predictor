@@ -79,3 +79,12 @@ class FeatureViewRepository:
         log.info(f"Batch data: {len(df)} rows | columns: {list(df.columns)}")
         log.info(f"Batch data: {len(df)} rows")
         return df
+
+
+    def get_full_dataset(self) -> pd.DataFrame:
+        """Return all data from the feature view for training."""
+        fv = self.get_or_create()
+        log.info("Loading full dataset for training...")
+        df = fv.get_batch_data()
+        log.info(f"Loaded {len(df)} rows")
+        return df

@@ -51,10 +51,11 @@ def load(start_str: str, end_str: str):
     except ValueError:
         return None, _stat_html({}), "Invalid date format (use YYYY-MM-DD)"
 
-    df = service.get_by_range(start, end)
-    stats = service.compute_stats(df)
+    df_raw  = service.get_by_range(start, end)
+    stats   = service.compute_stats(df_raw)
+    df_view = service.format_for_display(df_raw)
     msg = f"Loaded **{stats['total']}** predictions" if stats['total'] else "No predictions in this range."
-    return df, _stat_html(stats), msg
+    return df_view, _stat_html(stats), msg
 
 def preset(days: int):
     today = date.today()
@@ -71,6 +72,7 @@ def _stat_html(s: dict) -> str:
   <div class="stat-card"><h2 style="color:#86efac">{s['safe']}</h2><p>Safe</p></div>
   <div class="stat-card"><h2>{s['avg_prob']*100:.2f}%</h2><p>Avg Hazard Prob</p></div>
   <div class="stat-card"><h2>{s['model']}</h2><p>Model</p></div>
+  <div class="stat-card"><h2 style="color:#c4b5fd">{s.get('predicted', 0)}</h2><p>Real Predictions</p></div>
 </div>"""
 
 # ───────────────────────────────────────────

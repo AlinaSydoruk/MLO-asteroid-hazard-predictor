@@ -73,3 +73,12 @@ class AsteroidPredictor:
     def model_version(self) -> str:
         """Get the loaded champion model version."""
         return self._model_version or "not loaded"
+
+    @property
+    def training_cutoff(self) -> str | None:
+        """ISO date string of when this model was trained."""
+        self.load_champion()
+        client = mlflow.tracking.MlflowClient()
+        version = client.get_model_version_by_alias(self.model_name, self.alias)
+        run = client.get_run(version.run_id)
+        return run.data.params.get("training_cutoff_date")
