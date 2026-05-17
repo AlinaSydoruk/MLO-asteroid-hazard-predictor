@@ -36,10 +36,14 @@ HOPSWORKS_API_KEY = os.environ["HOPSWORKS_API_KEY"]
 HOPSWORKS_PROJECT_NAME = os.environ["HOPSWORKS_PROJECT_NAME"]
 HOPSWORKS_HOST = "eu-west.cloud.hopsworks.ai"
 FEATURE_GROUP_NAME = "asteroid_features"
-FEATURE_GROUP_VERSION = 3
+FEATURE_GROUP_VERSION = 2
 FEATURE_VIEW_NAME = "asteroid_pha_view"
-FEATURE_VIEW_VERSION = 4
+FEATURE_VIEW_VERSION = 1
+FEATURE_GROUP_DEDUP_NAME = "asteroid_features_dedup"
+FEATURE_GROUP_DEDUP_VERSION = 1
 
+FEATURE_VIEW_DEDUP_NAME = "asteroid_features_dedup"
+FEATURE_VIEW_DEDUP_VERSION =1
 # ─────────────────────────────────────────
 # MLflow / DagsHub
 # ─────────────────────────────────────────

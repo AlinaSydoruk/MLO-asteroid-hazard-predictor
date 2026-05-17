@@ -10,7 +10,6 @@ import pandas as pd
 from datetime import date, timedelta
 log = get_logger(__name__)
 
-
 class TrainingPipeline:
     """
     Orchestrates the full training pipeline.
@@ -20,6 +19,7 @@ class TrainingPipeline:
         self,
         auto_promote: bool = True,
         promotion_metric: str = "f1",
+        force_promote: bool = False,
     ):
         mlflow_conn = MLflowConnection()
 
@@ -30,6 +30,7 @@ class TrainingPipeline:
 
         self.auto_promote = auto_promote
         self.promotion_metric = promotion_metric
+        self.force_promote = force_promote
 
     def run(self, training_cutoff: pd.Timestamp | None = None) -> dict:
         """Run the full training pipeline. Returns final metrics."""
@@ -66,7 +67,7 @@ class TrainingPipeline:
 
         #  Promote if better
         log.info("Champion promotion check...")
-        if self.auto_promote and self.registry.should_promote(
+        if self.force_promote or (self.auto_promote and self.registry.should_promote) (
                 new_metrics=metrics,
                 metric_name=self.promotion_metric,
         ):
@@ -85,11 +86,12 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--cutoff", default=None, help="YYYY-MM-DD")
+    parser.add_argument("--force-promote", action="store_true")
     args = parser.parse_args()
 
     cutoff = pd.Timestamp(args.cutoff) if args.cutoff else None
 
-    pipeline = TrainingPipeline(auto_promote=True, promotion_metric=PROMOTION_METRIC)
+    pipeline = TrainingPipeline(auto_promote=True, promotion_metric=PROMOTION_METRIC, force_promote=args.force_promote)
     pipeline.run(training_cutoff=cutoff)
 
 if __name__ == "__main__":

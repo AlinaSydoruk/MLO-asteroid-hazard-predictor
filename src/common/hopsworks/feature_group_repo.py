@@ -1,7 +1,3 @@
-"""
-Generic Feature Group Repository.
-Wraps any Hopsworks Feature Group — features, predictions, or future groups.
-"""
 import pandas as pd
 
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager

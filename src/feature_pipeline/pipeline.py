@@ -7,7 +7,10 @@ from src.feature_pipeline.asteroid_fetcher import AsteroidFetcher
 from src.feature_pipeline.asteroid_parser import AsteroidParser
 from src.feature_pipeline.feature_computer import compute_features
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager
-from src.feature_pipeline.main_features_repository import create_features_repository
+from src.feature_pipeline.main_features_repository import (
+    AsteroidFeaturesRepository,
+    AsteroidFeaturesDedupRepository,
+)
 from src.common.hopsworks.feature_view_repo import FeatureViewRepository
 from src.utils import get_logger
 
@@ -21,10 +24,13 @@ class FeaturePipeline:
         connection = HopsworksConnectionManager()
         self.fetcher = AsteroidFetcher(client=NASAClient())
         self.parser = AsteroidParser()
-        self.feature_group = create_features_repository(connection=connection)
+        self.feature_group = AsteroidFeaturesRepository(connection=connection)
+        self.feature_group_dedup = AsteroidFeaturesDedupRepository(
+            connection=connection,
+        )
         self.feature_view = FeatureViewRepository(
             connection=connection,
-            feature_group_repo=self.feature_group,   # share same fg instance
+            feature_group_repo=self.feature_group,
         )
 
     def run_incremental(self) -> pd.DataFrame:
@@ -51,7 +57,10 @@ class FeaturePipeline:
             log.error("Pipeline failed, insert unsuccessful.")
             raise RuntimeError("Feature group insert failed")
 
+        self.feature_group_dedup.dedup_and_insert(df)
+
         log.info("Incremental run complete.")
+
         return df
 
     def run_weekly(self, start_date: str = None) -> pd.DataFrame:
@@ -70,6 +79,7 @@ class FeaturePipeline:
         df = self.parser.parse_feed(enriched_feed)
         df = compute_features(df)
         self.feature_group.insert(df)
+        self.feature_group_dedup.dedup_and_insert(df)
         log.info("Weekly run complete.")
         return df
 
@@ -81,7 +91,8 @@ class FeaturePipeline:
         log.info(f"Parsed {len(df)} unique asteroids")
         df = compute_features(df)
         self.feature_group.insert(df)
-        log.info(" Backfill complete.")
+        self.feature_group_dedup.dedup_and_insert(df)
+        log.info("Backfill complete.")
         return df
 
     def create_feature_view(self) -> None:
