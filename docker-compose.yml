@@ -38,3 +38,9 @@ services:
     ports:
       - "7860:7860"
     restart: unless-stopped
+
+  monitoring_pipeline:
+    build: .
+    container_name: asteroid-monitoring-pipeline
+    env_file: .env.local
+    command: python -m src.monitoring_pipeline.pipeline

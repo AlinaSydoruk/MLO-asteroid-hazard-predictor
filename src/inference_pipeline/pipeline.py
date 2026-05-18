@@ -24,16 +24,14 @@ class InferencePipeline:
         self.predictor = AsteroidPredictor()
         self.prediction_repo = create_predictions_repository(connection=connection)
 
-    def run(self, days_back: int = INFERENCE_DAYS_BACK) -> pd.DataFrame:
-        """Run inference for asteroids in the last N days."""
+    def run(self) -> pd.DataFrame:
+        """Run inference for asteroids"""
         log.info("Starting INFERENCE pipeline")
 
         log.info("Loading recent asteroids from Feature Store...")
-        end = date.today() + timedelta(days=1)
-        start = end - timedelta(days=days_back + 1)
         df = self.feature_view.get_batch_data(
-            start_time=start.isoformat(),
-            end_time=end.isoformat(),
+            start_time=date.today().isoformat(),
+            end_time=date.today().isoformat(),
         )
 
         if df.empty:

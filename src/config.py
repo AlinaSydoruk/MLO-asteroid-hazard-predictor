@@ -85,3 +85,16 @@ PREDICTIONS_GROUP_VERSION = 1
 
 WEEKLY_RETRAIN_DAY = 6           # 0=Mon, 6=Sun
 WEEKLY_RETRAIN_HOUR_UTC = 6      # Sunday 06:00 UTC
+
+# ─────────────────────────────────────────
+# Monitoring
+# ─────────────────────────────────────────
+MONITORING_GROUP_NAME = "monitoring_metrics"
+MONITORING_GROUP_VERSION = 1
+MONITORING_EXPERIMENT_NAME = "asteroid_monitoring"
+MONITORING_LOOKBACK_DAYS = 7         # window of predictions to evaluate
+DRIFT_ALERT_THRESHOLD = 0.5          # share of drifted features that triggers alert
+PERFORMANCE_LAG_DAYS = 30            # how far back to check predictions for ground truth
+
+P_VALUE_THRESHOLD = 0.05
+EXPECTED_MIN_ROWS_PER_DAY =5
