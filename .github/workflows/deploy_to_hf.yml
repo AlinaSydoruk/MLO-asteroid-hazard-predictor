@@ -1,0 +1,37 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global user.email "ci@github.com"
+          git config --global user.name "GitHub CI"
+
+          # Clone the HF Space repo
+          git clone https://user:${HF_TOKEN}@huggingface.co/spaces/AlinaSydoruk/asteroid-hazard-predictor hf_space
+
+          # Copy only what the Space needs
+          cp app.py hf_space/
+          cp requirements.txt hf_space/
+          cp README.md hf_space/
+          cp -r src hf_space/
+
+          # Commit and push
+          cd hf_space
+          git add .
+          git diff --cached --quiet || (git commit -m "Sync from GitHub main" && git push)
