@@ -67,9 +67,12 @@ class TrainingPipeline:
 
         #  Promote if better
         log.info("Champion promotion check...")
-        if self.force_promote or (self.auto_promote and self.registry.should_promote) (
-                new_metrics=metrics,
-                metric_name=self.promotion_metric,
+        if self.force_promote or (
+                self.auto_promote
+                and self.registry.should_promote(
+            new_metrics=metrics,
+            metric_name=self.promotion_metric,
+        )
         ):
             self.registry.promote_to_champion()
             log.info("New champion!")
