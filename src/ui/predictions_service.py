@@ -40,6 +40,21 @@ class PredictionsService:
             target += timedelta(days=7)
         return target
 
+    def get_champion_training_cutoff(self) -> str:
+        """Get the training cutoff date of the current champion from MLflow."""
+        try:
+            import mlflow
+            from src.training_pipeline.mlflow.connection import MLflowConnectionManager
+            from src.config import MODEL_NAME, MODEL_ALIAS
+
+            MLflowConnectionManager().connect()
+            client = mlflow.tracking.MlflowClient()
+            v = client.get_model_version_by_alias(MODEL_NAME, MODEL_ALIAS)
+            run = client.get_run(v.run_id)
+            return run.data.params.get("training_cutoff_date", "unknown")
+        except Exception:
+            return "unknown"
+
     def get_time_until_next_train(self) -> str:
         """Human-readable countdown e.g. 'in 3d 4h'."""
         delta = self.get_next_train_time() - datetime.now(timezone.utc)
@@ -64,6 +79,7 @@ class PredictionsService:
         return self.repo.read()
 
     def compute_stats(self, df: pd.DataFrame) -> dict:
+        cutoff = self.get_champion_training_cutoff()
         if df.empty:
             return {
                 "total": 0,
@@ -74,6 +90,7 @@ class PredictionsService:
                 "predicted": 0,
                 "next_train": self.get_time_until_next_train(),
                 "history_days": self.get_history_days(),
+                "training_cutoff": cutoff,
             }
         return {
             "total": len(df),
@@ -84,6 +101,7 @@ class PredictionsService:
             "model": f"v{df['model_version'].iloc[0]}",
             "next_train": self.get_time_until_next_train(),
             "history_days": self.get_history_days(),
+            "training_cutoff": cutoff,
         }
 
     # Display formatting

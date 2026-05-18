@@ -84,6 +84,7 @@ def _stat_html(s: dict) -> str:
             "total": 0, "hazardous": 0, "safe": 0, "avg_prob": 0.0,
             "model": "—", "predicted": 0,
             "next_train": "—", "history_days": 0,
+            v
         }
     return f"""
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
@@ -93,7 +94,12 @@ def _stat_html(s: dict) -> str:
   <div class="stat-card"><h2>{s['avg_prob']*100:.2f}%</h2><p>Avg Hazard Prob</p></div>
   <div class="stat-card"><h2>{s['model']}</h2><p>Champion Model</p></div>
   <div class="stat-card"><h2 style="color:#c4b5fd">{s.get('predicted', 0)}</h2><p>Real Predictions</p></div>
-  <div class="stat-card"><h2 style="color:#fcd34d">{s['next_train']}</h2><p>Next Retrain</p></div>
+  <div class="stat-card"><h2 style="color:#fbbf24">{s.get('next_train', '—')}</h2>
+  <p>Next Retrain</p>
+  <p style="font-size:0.72rem; color:#64748b; margin-top:0.3rem">
+    trained till {s.get('training_cutoff', '—')}
+  </p>
+</div>
   <div class="stat-card"><h2 style="color:#67e8f9">{s['history_days']}d</h2><p>Days of History</p></div>
 </div>"""
 
