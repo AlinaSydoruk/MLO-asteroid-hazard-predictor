@@ -1,9 +1,5 @@
 import time
 import requests
-from pathlib import Path
-from dotenv import load_dotenv
-
-load_dotenv(Path(__file__).parent.parent / ".env.local")
 
 from src.config import (
     NASA_API_KEY,

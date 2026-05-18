@@ -7,7 +7,13 @@ from src.utils import get_logger
 
 log = get_logger(__name__)
 
-service = PredictionsService()
+_service: PredictionsService | None = None
+
+def get_service() -> PredictionsService:
+    global _service
+    if _service is None:
+        _service = PredictionsService()
+    return _service
 
 # ───────────────────────────────────────────
 # Custom theme & CSS for a cosmic look
@@ -45,6 +51,7 @@ CSS = """
 # Callbacks
 # ───────────────────────────────────────────
 def load(start_str: str, end_str: str):
+    service = get_service()
     try:
         start = date.fromisoformat(start_str)
         end = date.fromisoformat(end_str)
@@ -58,6 +65,7 @@ def load(start_str: str, end_str: str):
     return df_view, _stat_html(stats), msg
 
 def load_all():
+    service = get_service()
     df_raw  = service.get_all()
     stats   = service.compute_stats(df_raw)
     df_view = service.format_for_display(df_raw)

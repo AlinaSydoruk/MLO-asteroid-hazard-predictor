@@ -6,7 +6,7 @@ import pandas as pd
 import mlflow
 
 from src.config import MODEL_NAME, MODEL_ALIAS
-from src.training_pipeline.mlflow.connection import MLflowConnection
+from src.training_pipeline.mlflow.connection import MLflowConnectionManager
 from src.common.feature_schema import get_feature_columns
 from src.utils import get_logger
 
@@ -22,11 +22,11 @@ class AsteroidPredictor:
         self,
         model_name: str = MODEL_NAME,
         alias: str = MODEL_ALIAS,
-        connection: MLflowConnection = None,
+        connection: MLflowConnectionManager = None,
     ):
         self.model_name = model_name
         self.alias = alias
-        self.connection = connection or MLflowConnection()
+        self.connection = connection or MLflowConnectionManager()
         self._model = None
         self._model_version = None
 
@@ -35,14 +35,13 @@ class AsteroidPredictor:
         if self._model is not None:
             return
 
-        self.connection.connect()
+        client = self.connection.client
         model_uri = f"models:/{self.model_name}@{self.alias}"
         log.info(f"Loading champion model: {model_uri}")
 
         self._model = mlflow.xgboost.load_model(model_uri)
 
         # Track version for logging
-        client = mlflow.tracking.MlflowClient()
         version = client.get_model_version_by_alias(
             self.model_name, self.alias
         )
@@ -78,7 +77,7 @@ class AsteroidPredictor:
     def training_cutoff(self) -> str | None:
         """ISO date string of when this model was trained."""
         self.load_champion()
-        client = mlflow.tracking.MlflowClient()
+        client = self.connection.client
         version = client.get_model_version_by_alias(self.model_name, self.alias)
         run = client.get_run(version.run_id)
         return run.data.params.get("training_cutoff_date")

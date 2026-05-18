@@ -1,9 +1,9 @@
 import pandas as pd
 
 from src.config import (
-    FEATURE_VIEW_NAME,
+    FEATURE_VIEW_INFERENCE_NAME,
     FEATURE_VIEW_VERSION,
-    FEATURE_VIEW_DEDUP_NAME,
+    FEATURE_VIEW_TRAINING_NAME,
     FEATURE_VIEW_DEDUP_VERSION,
 )
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager
@@ -25,7 +25,7 @@ class FeatureViewRepository:
 
     def __init__(
             self,
-            name: str = FEATURE_VIEW_NAME,
+            name: str = FEATURE_VIEW_INFERENCE_NAME,
             version: int = FEATURE_VIEW_VERSION,
             connection: HopsworksConnectionManager = None,
             feature_group_repo: FeatureGroupRepository = None,
@@ -77,7 +77,7 @@ class DedupFeatureViewRepository(FeatureViewRepository):
             feature_group_repo: FeatureGroupRepository = None,
     ):
         super().__init__(
-            name=FEATURE_VIEW_DEDUP_NAME,
+            name=FEATURE_VIEW_TRAINING_NAME,
             version=FEATURE_VIEW_DEDUP_VERSION,
             connection=connection,
             feature_group_repo=feature_group_repo or AsteroidFeaturesDedupRepository(connection=connection),

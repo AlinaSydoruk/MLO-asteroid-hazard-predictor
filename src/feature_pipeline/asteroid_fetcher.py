@@ -18,8 +18,8 @@ log = get_logger(__name__)
 class AsteroidFetcher:
     """Fetches asteroid data from NASA NeoWs API."""
 
-    def __init__(self, client: NASAClient = None):
-        self.client = client
+    def __init__(self, client: NASAClient | None = None):
+        self.client = client or NASAClient()
 
     def get_feed(self, start_date: str, end_date: str) -> dict:
         """Fetch asteroids by close approach date (max 7-day window)."""

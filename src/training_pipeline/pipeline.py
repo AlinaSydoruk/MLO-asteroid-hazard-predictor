@@ -1,7 +1,7 @@
 from src.training_pipeline.data_loader import TrainingDataLoader
 from src.training_pipeline.trainer import ModelTrainer
 from src.training_pipeline.evaluator import ModelEvaluator
-from src.training_pipeline.mlflow.connection import MLflowConnection
+from src.training_pipeline.mlflow.connection import MLflowConnectionManager
 from src.training_pipeline.mlflow.model_registry_repo import ModelRegistryRepository
 from src.utils import get_logger
 from src.config import PROMOTION_METRIC
@@ -21,7 +21,7 @@ class TrainingPipeline:
         promotion_metric: str = "f1",
         force_promote: bool = False,
     ):
-        mlflow_conn = MLflowConnection()
+        mlflow_conn = MLflowConnectionManager()
 
         self.data_loader = TrainingDataLoader()
         self.trainer = ModelTrainer()
@@ -53,14 +53,14 @@ class TrainingPipeline:
         metrics = self.evaluator.evaluate(model, X_test, y_test)
 
         log.info("Logging to MLflow and registering model...")
-        params = {
+        run_params = {
             **self.trainer.params,
             "training_cutoff_date": cutoff_iso,
         }
         run_id = self.registry.log_run(
             model=model,
             metrics=metrics,
-            params=params,
+            params=run_params,
             feature_importance=self.trainer.get_feature_importance(),
             X_sample=X_train.head(5),
         )

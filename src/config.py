@@ -35,14 +35,15 @@ NASA_POLITE_DELAY_SECONDS = 0.5
 HOPSWORKS_API_KEY = os.environ["HOPSWORKS_API_KEY"]
 HOPSWORKS_PROJECT_NAME = os.environ["HOPSWORKS_PROJECT_NAME"]
 HOPSWORKS_HOST = "eu-west.cloud.hopsworks.ai"
+
 FEATURE_GROUP_NAME = "asteroid_features"
-FEATURE_GROUP_VERSION = 2
-FEATURE_VIEW_NAME = "asteroid_pha_view"
-FEATURE_VIEW_VERSION = 1
 FEATURE_GROUP_DEDUP_NAME = "asteroid_features_dedup"
+FEATURE_GROUP_VERSION = 2
 FEATURE_GROUP_DEDUP_VERSION = 1
 
-FEATURE_VIEW_DEDUP_NAME = "asteroid_features_dedup"
+FEATURE_VIEW_INFERENCE_NAME = "asteroid_inference"
+FEATURE_VIEW_TRAINING_NAME = "asteroid_training_dedup"
+FEATURE_VIEW_VERSION = 1
 FEATURE_VIEW_DEDUP_VERSION =1
 # ─────────────────────────────────────────
 # MLflow / DagsHub
@@ -66,8 +67,8 @@ XGBOOST_PARAMS = {
     "eval_metric": "auc",
     "random_state": 42,
     "verbosity": 0,
-    "training_cutoff_date": date.today().isoformat(),
 }
+
 FEATURE_IMPORTANCE_TYPE = "gain"
 TEST_SIZE = 0.2
 VALIDATION_SIZE = 0.2

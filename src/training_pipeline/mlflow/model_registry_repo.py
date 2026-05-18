@@ -10,7 +10,7 @@ import xgboost as xgb
 from mlflow.models import infer_signature
 
 from src.config import MODEL_NAME, MODEL_ALIAS
-from src.training_pipeline.mlflow.connection import MLflowConnection
+from src.training_pipeline.mlflow.connection import MLflowConnectionManager
 from src.utils import get_logger
 
 log = get_logger(__name__)
@@ -25,11 +25,11 @@ class ModelRegistryRepository:
         self,
         model_name: str = MODEL_NAME,
         alias: str = MODEL_ALIAS,
-        connection: MLflowConnection = None,
+        connection: MLflowConnectionManager = None,
     ):
         self.model_name = model_name
         self.alias = alias
-        self.connection = connection or MLflowConnection()
+        self.connection = connection or MLflowConnectionManager()
 
     def log_run(
         self,
@@ -66,9 +66,7 @@ class ModelRegistryRepository:
         Promote a version to champion alias.
         If version is None, uses the latest version.
         """
-        self.connection.connect()
-        client = mlflow.tracking.MlflowClient()
-
+        client = self.connection.client
         if version is None:
             versions = client.get_latest_versions(self.model_name)
             if not versions:
@@ -88,8 +86,7 @@ class ModelRegistryRepository:
 
     def get_champion_version(self) -> str:
         """Get the current champion version."""
-        self.connection.connect()
-        client = mlflow.tracking.MlflowClient()
+        client = self.connection.client
         try:
             v = client.get_model_version_by_alias(
                 self.model_name, self.alias
@@ -100,8 +97,7 @@ class ModelRegistryRepository:
 
     def get_champion_metrics(self) -> dict:
         """Get metrics of the current champion model."""
-        self.connection.connect()
-        client = mlflow.tracking.MlflowClient()
+        client = self.connection.client
         try:
             v = client.get_model_version_by_alias(
                 self.model_name, self.alias
