@@ -26,7 +26,6 @@ jobs:
           git clone https://user:${HF_TOKEN}@huggingface.co/spaces/AlinaSydoruk/asteroid-hazard-predictor hf_space
 
           # Copy only what the Space needs
-          cp app.py hf_space/
           cp requirements.txt hf_space/
           cp README.md hf_space/
           cp -r src hf_space/
@@ -35,3 +34,7 @@ jobs:
           cd hf_space
           git add .
           git diff --cached --quiet || (git commit -m "Sync from GitHub main" && git push)
+          
+          
+          
+          
