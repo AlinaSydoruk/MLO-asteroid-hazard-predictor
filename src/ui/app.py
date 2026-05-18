@@ -57,6 +57,14 @@ def load(start_str: str, end_str: str):
     msg = f"Loaded **{stats['total']}** predictions" if stats['total'] else "No predictions in this range."
     return df_view, _stat_html(stats), msg
 
+def load_all():
+    df_raw  = service.get_all()
+    stats   = service.compute_stats(df_raw)
+    df_view = service.format_for_display(df_raw)
+    total   = stats.get("total", 0)
+    msg = f"Loaded **{total}** predictions (full history)" if total else "No predictions found."
+    return df_view, _stat_html(stats), msg
+
 def preset(days: int):
     today = date.today()
     start = today - timedelta(days=days)
@@ -64,15 +72,21 @@ def preset(days: int):
 
 def _stat_html(s: dict) -> str:
     if not s or s.get("total", 0) == 0:
-        s = {"total": 0, "hazardous": 0, "safe": 0, "avg_prob": 0.0, "model": "—"}
+        s = {
+            "total": 0, "hazardous": 0, "safe": 0, "avg_prob": 0.0,
+            "model": "—", "predicted": 0,
+            "next_train": "—", "history_days": 0,
+        }
     return f"""
-<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
   <div class="stat-card"><h2>{s['total']}</h2><p>Total</p></div>
   <div class="stat-card"><h2 style="color:#fca5a5">{s['hazardous']}</h2><p>Hazardous</p></div>
   <div class="stat-card"><h2 style="color:#86efac">{s['safe']}</h2><p>Safe</p></div>
   <div class="stat-card"><h2>{s['avg_prob']*100:.2f}%</h2><p>Avg Hazard Prob</p></div>
-  <div class="stat-card"><h2>{s['model']}</h2><p>Model</p></div>
+  <div class="stat-card"><h2>{s['model']}</h2><p>Champion Model</p></div>
   <div class="stat-card"><h2 style="color:#c4b5fd">{s.get('predicted', 0)}</h2><p>Real Predictions</p></div>
+  <div class="stat-card"><h2 style="color:#fcd34d">{s['next_train']}</h2><p>Next Retrain</p></div>
+  <div class="stat-card"><h2 style="color:#67e8f9">{s['history_days']}d</h2><p>Days of History</p></div>
 </div>"""
 
 # ───────────────────────────────────────────
@@ -93,6 +107,7 @@ with gr.Blocks(theme=theme, css=CSS, title="Asteroid Hazard Predictor") as app:
             with gr.Row():
                 btn_today = gr.Button("Today",      size="sm")
                 btn_7     = gr.Button("Last 7d",    size="sm")
+                btn_all = gr.Button("All History", size="sm")
             load_btn = gr.Button("Load Predictions", variant="primary")
             status = gr.Markdown()
 
@@ -105,6 +120,7 @@ with gr.Blocks(theme=theme, css=CSS, title="Asteroid Hazard Predictor") as app:
     # wire up
     btn_today.click(lambda: preset(0),  outputs=[start_in, end_in])
     btn_7.click(    lambda: preset(7),  outputs=[start_in, end_in])
+    btn_all.click(load_all, outputs=[table, stats_box, status])
     load_btn.click(load, inputs=[start_in, end_in], outputs=[table, stats_box, status])
     app.load(lambda: load(date.today().isoformat(), date.today().isoformat()),
              outputs=[table, stats_box, status])
