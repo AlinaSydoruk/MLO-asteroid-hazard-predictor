@@ -83,8 +83,7 @@ def _stat_html(s: dict) -> str:
         s = {
             "total": 0, "hazardous": 0, "safe": 0, "avg_prob": 0.0,
             "model": "—", "predicted": 0,
-            "next_train": "—", "history_days": 0,
-            v
+            "next_train": "—", "history_days": 0
         }
     return f"""
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
