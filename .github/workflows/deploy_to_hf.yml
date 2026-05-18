@@ -13,7 +13,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          lfs: true
 
       - name: Push to Hugging Face Space
         env:
@@ -27,8 +26,24 @@ jobs:
 
           # Copy only what the Space needs
           cp requirements.txt hf_space/
-          cp README.md hf_space/
           cp -r src hf_space/
+          
+           # Generate a clean UTF-8 README.md directly on the runner
+          cat > hf_space/README.md << 'EOF'
+          ---
+          title: Asteroid Hazard Predictor
+          emoji: ☄️
+          colorFrom: indigo
+          colorTo: purple
+          sdk: gradio
+          sdk_version: 4.44.0
+          app_file: src/ui/app.py
+          pinned: false
+          ---
+
+          # Asteroid Hazard Predictor
+          Predicts whether near-Earth asteroids are potentially hazardous.
+          EOF
 
           # Commit and push
           cd hf_space
