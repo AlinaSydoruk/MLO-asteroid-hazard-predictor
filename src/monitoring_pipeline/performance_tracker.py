@@ -23,7 +23,7 @@ class PerformanceTracker:
                     "n_evaluated": 0}
         join_keys = join_keys or get_join_keys()
         merged = old_predictions.merge(
-            current_labels[[join_keys, label_col]],
+            current_labels[join_keys + [label_col]],
             on=join_keys, how="inner",
         )
         if len(merged) == 0:
