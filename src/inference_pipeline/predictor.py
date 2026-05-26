@@ -6,8 +6,8 @@ import pandas as pd
 import mlflow
 
 from src.config import MODEL_NAME, MODEL_ALIAS
-from src.training_pipeline.mlflow.connection import MLflowConnectionManager
-from src.common.feature_schema import get_feature_columns
+from src.common.mlflow.connection import MLflowConnectionManager
+from src.common.features.schema import get_feature_columns
 from src.utils import get_logger
 
 log = get_logger(__name__)
@@ -28,6 +28,7 @@ class AsteroidPredictor:
         self.alias = alias
         self.connection = connection or MLflowConnectionManager()
         self._model = None
+        self._training_cutoff = None
         self._model_version = None
 
     def load_champion(self) -> None:
@@ -46,6 +47,10 @@ class AsteroidPredictor:
             self.model_name, self.alias
         )
         self._model_version = version.version
+        log.info(f"Champion model v{self._model_version} loaded.")
+
+        run = client.get_run(version.run_id)
+        self._training_cutoff = run.data.params.get("training_cutoff_date")
         log.info(f"Champion model v{self._model_version} loaded.")
 
     def predict(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -75,9 +80,5 @@ class AsteroidPredictor:
 
     @property
     def training_cutoff(self) -> str | None:
-        """ISO date string of when this model was trained."""
         self.load_champion()
-        client = self.connection.client
-        version = client.get_model_version_by_alias(self.model_name, self.alias)
-        run = client.get_run(version.run_id)
-        return run.data.params.get("training_cutoff_date")
+        return self._training_cutoff

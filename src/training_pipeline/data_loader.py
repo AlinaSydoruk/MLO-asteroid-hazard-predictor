@@ -4,8 +4,8 @@ from src.config import (
     VALIDATION_SIZE,
     TEST_SIZE,
 )
-from src.common.hopsworks.feature_view_repo import DedupFeatureViewRepository
-from src.common.feature_schema import get_feature_columns
+from src.common.features.views import AsteroidDedupFeatureView
+from src.common.features.schema import get_feature_columns
 from src.utils import get_logger
 
 log = get_logger(__name__)
@@ -16,11 +16,11 @@ class TrainingDataLoader:
 
     def __init__(
         self,
-        feature_view_repo: DedupFeatureViewRepository | None = None,
+        feature_view_repo: AsteroidDedupFeatureView | None = None,
         val_fraction: float = VALIDATION_SIZE,
         test_fraction: float = TEST_SIZE,
     ):
-        self.feature_view_repo = feature_view_repo or DedupFeatureViewRepository()
+        self.feature_view_repo = feature_view_repo or AsteroidDedupFeatureView()
         self.val_fraction = val_fraction
         self.test_fraction = test_fraction
 

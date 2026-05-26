@@ -2,12 +2,12 @@ from datetime import date, timedelta
 import argparse
 import pandas as pd
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager
-from src.common.hopsworks.feature_view_repo import FeatureViewRepository
+from src.common.features.views import AsteroidFeatureView
 from src.inference_pipeline.predictor import AsteroidPredictor
-from src.inference_pipeline.daily_predictions_repository import create_predictions_repository
-from src.common.feature_schema import get_identity_columns
+from src.common.features.repositories import AsteroidPredictionsRepository
+from src.common.features.schema import get_identity_columns
 from src.utils import get_logger
-from src.config import INFERENCE_DAYS_BACK
+
 
 log = get_logger(__name__)
 
@@ -20,9 +20,9 @@ class InferencePipeline:
 
     def __init__(self):
         connection = HopsworksConnectionManager()
-        self.feature_view = FeatureViewRepository(connection=connection)
+        self.feature_view = AsteroidFeatureView(connection=connection)
         self.predictor = AsteroidPredictor()
-        self.prediction_repo = create_predictions_repository(connection=connection)
+        self.prediction_repo = AsteroidPredictionsRepository(connection=connection)
 
     def run(self) -> pd.DataFrame:
         """Run inference for asteroids"""

@@ -3,21 +3,18 @@ from datetime import date, timedelta
 
 import mlflow
 import pandas as pd
-
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager
-from src.common.hopsworks.feature_view_repo import (
-    FeatureViewRepository,
-    DedupFeatureViewRepository,
+from src.common.features.repositories import AsteroidPredictionsRepository
+from src.common.features.views import (
+    AsteroidFeatureView,
+    AsteroidDedupFeatureView,
 )
-from src.feature_pipeline.main_features_repository import AsteroidFeaturesRepository
-from src.inference_pipeline.daily_predictions_repository import (
-    create_predictions_repository,
-)
-from src.training_pipeline.mlflow.connection import MLflowConnectionManager
+from src.common.mlflow.connection import MLflowConnectionManager
 from src.monitoring_pipeline.data_quality_check import DataQualityChecker
 from src.monitoring_pipeline.feature_drift import FeatureDriftDetector
 from src.monitoring_pipeline.prediction_drift import PredictionDriftDetector
 from src.monitoring_pipeline.performance_tracker import PerformanceTracker
+from src.common.features.views import AsteroidMonitoringFeatureView
 from src.config import (
     MONITORING_EXPERIMENT_NAME,
     MONITORING_LOOKBACK_DAYS,
@@ -32,12 +29,12 @@ log = get_logger(__name__)
 class MonitoringPipeline:
     """Runs all 4 monitoring levels and logs everything to MLflow."""
 
-    def __inFit__(self):
+    def __init__(self):
         connection = HopsworksConnectionManager()
-        self.fv_raw = FeatureViewRepository(connection=connection)
-        self.fv_dedup = DedupFeatureViewRepository(connection=connection)
-        self.pred_repo = create_predictions_repository(connection=connection)
-        self.feature_group = AsteroidFeaturesRepository(connection=connection)
+        self.fv_raw = AsteroidFeatureView(connection=connection)
+        self.fv_dedup = AsteroidDedupFeatureView(connection=connection)
+        self.pred_repo = AsteroidPredictionsRepository(connection=connection)
+        self.monitoring_view = AsteroidMonitoringFeatureView(connection=connection)
         self.quality = DataQualityChecker()
         self.feature_drift = FeatureDriftDetector()
         self.pred_drift = PredictionDriftDetector()
@@ -80,9 +77,9 @@ class MonitoringPipeline:
 
             #  Prediction Drift
             preds_fg = self.pred_repo.get_or_create()
-            recent_preds = preds_fg.read(
-                read_options={"use_hive": True}
-            ).query(f"close_approach_date >= '{start.isoformat()}'")
+            all_preds = preds_fg.read(read_options={"use_hive": True})
+            all_preds["close_approach_date"] = pd.to_datetime(all_preds["close_approach_date"])
+            recent_preds = all_preds.query(f"close_approach_date >= '{start.isoformat()}'")
             pred_metrics = self.pred_drift.detect(recent_preds)
             mlflow.log_metrics(pred_metrics)
 
@@ -90,14 +87,13 @@ class MonitoringPipeline:
             lag_start = today - timedelta(days=PERFORMANCE_LAG_DAYS + 7)
             lag_end = today - timedelta(days=PERFORMANCE_LAG_DAYS)
 
-            raw = preds_fg.read(read_options={"use_hive": True})
-            raw["close_approach_date"] = pd.to_datetime(raw["close_approach_date"])
-            old_preds = raw.query("@lag_start <= close_approach_date <= @lag_end")
+            old_preds = all_preds.query("@lag_start <= close_approach_date <= @lag_end")
 
-            current_labels = self.feature_group.read_by_date(
-                start_date=lag_start.isoformat(),
-                end_date=lag_end.isoformat(),
+            current_labels = self.monitoring_view.get_batch_data(
+                start_time=lag_start.isoformat(),
+                end_time=lag_end.isoformat(),
             )
+            perf = {}
             if old_preds.empty:
                 log.warning(f"No predictions found in lag window {lag_start} → {lag_end}, skipping performance eval.")
             else:
