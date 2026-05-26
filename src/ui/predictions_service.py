@@ -1,20 +1,21 @@
-from datetime import date, timedelta
 import pandas as pd
-
+import mlflow
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager
-from src.inference_pipeline.daily_predictions_repository import create_predictions_repository
+from src.common.features.repositories import AsteroidPredictionsRepository
 from src.utils import get_logger
 from src.config import WEEKLY_RETRAIN_DAY, WEEKLY_RETRAIN_HOUR_UTC
+from src.common.mlflow.connection import MLflowConnectionManager
+from datetime import date, timedelta, datetime, timezone
 
 log = get_logger(__name__)
-from datetime import datetime, time, timezone
+
 
 class PredictionsService:
     """Reads predictions from Hopsworks and prepares them for display."""
 
     def __init__(self, connection: HopsworksConnectionManager = None):
         self.connection = connection or HopsworksConnectionManager()
-        self.repo = create_predictions_repository(connection=self.connection)
+        self.repo = AsteroidPredictionsRepository(connection=self.connection)
 
     def get_by_range(self, start: date, end: date) -> pd.DataFrame:
         log.info(f"Fetching predictions {start} → {end}")
@@ -43,10 +44,7 @@ class PredictionsService:
     def get_champion_training_cutoff(self) -> str:
         """Get the training cutoff date of the current champion from MLflow."""
         try:
-            import mlflow
-            from src.training_pipeline.mlflow.connection import MLflowConnectionManager
             from src.config import MODEL_NAME, MODEL_ALIAS
-
             MLflowConnectionManager().connect()
             client = mlflow.tracking.MlflowClient()
             v = client.get_model_version_by_alias(MODEL_NAME, MODEL_ALIAS)
@@ -56,7 +54,7 @@ class PredictionsService:
             return "unknown"
 
     def get_time_until_next_train(self) -> str:
-        """Human-readable countdown e.g. 'in 3d 4h'."""
+
         delta = self.get_next_train_time() - datetime.now(timezone.utc)
         days = delta.days
         hours = delta.seconds // 3600
