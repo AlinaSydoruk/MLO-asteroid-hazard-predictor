@@ -7,7 +7,7 @@ from src.feature_pipeline.asteroid_fetcher import AsteroidFetcher
 from src.feature_pipeline.asteroid_parser import AsteroidParser
 from src.feature_pipeline.feature_computer import compute_features
 from src.common.hopsworks.connection_manager import HopsworksConnectionManager
-from src.feature_pipeline.main_features_repository import (
+from src.common.features.repositories import (
     AsteroidFeaturesRepository,
     AsteroidFeaturesDedupRepository,
 )

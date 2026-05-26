@@ -4,7 +4,7 @@ Global configuration
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from datetime import date
+
 # ─────────────────────────────────────────
 # Load secrets from .env.local or .env
 # ─────────────────────────────────────────
@@ -38,13 +38,21 @@ HOPSWORKS_HOST = "eu-west.cloud.hopsworks.ai"
 
 FEATURE_GROUP_NAME = "asteroid_features"
 FEATURE_GROUP_DEDUP_NAME = "asteroid_features_dedup"
+PREDICTIONS_GROUP_NAME = "asteroid_predictions"
+
 FEATURE_GROUP_VERSION = 2
 FEATURE_GROUP_DEDUP_VERSION = 1
+PREDICTIONS_GROUP_VERSION = 1
 
+FEATURE_VIEW_NAME ="asteroid_features"
 FEATURE_VIEW_INFERENCE_NAME = "asteroid_inference"
-FEATURE_VIEW_TRAINING_NAME = "asteroid_training_dedup"
+FEATURE_VIEW_DEDUP_NAME = "asteroid_training_dedup"
+FEATURE_VIEW_MONITORING_NAME ="asteroid_features_monitoring"
+
 FEATURE_VIEW_VERSION = 1
 FEATURE_VIEW_DEDUP_VERSION =1
+FEATURE_VIEW_MONITORING_VERSION =1
+
 # ─────────────────────────────────────────
 # MLflow / DagsHub
 # ─────────────────────────────────────────
@@ -78,19 +86,13 @@ PROMOTION_METRIC = "f1"
 
 TRAINING_CUTOFF_DAYS_BACK = 7
 
-INFERENCE_DAYS_BACK = 1
-
-PREDICTIONS_GROUP_NAME = "asteroid_predictions"
-PREDICTIONS_GROUP_VERSION = 1
-
 WEEKLY_RETRAIN_DAY = 6           # 0=Mon, 6=Sun
 WEEKLY_RETRAIN_HOUR_UTC = 6      # Sunday 06:00 UTC
 
 # ─────────────────────────────────────────
 # Monitoring
 # ─────────────────────────────────────────
-MONITORING_GROUP_NAME = "monitoring_metrics"
-MONITORING_GROUP_VERSION = 1
+
 MONITORING_EXPERIMENT_NAME = "asteroid_monitoring"
 MONITORING_LOOKBACK_DAYS = 7         # window of predictions to evaluate
 DRIFT_ALERT_THRESHOLD = 0.5          # share of drifted features that triggers alert
