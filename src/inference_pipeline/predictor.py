@@ -9,7 +9,7 @@ from src.config import MODEL_NAME, MODEL_ALIAS
 from src.common.mlflow.connection import MLflowConnectionManager
 from src.common.features.schema import get_feature_columns
 from src.utils import get_logger
-from src.common.features.schema import get_feature_columns, PREDICTION_COLUMN, PROBABILITY_COLUMN
+from src.common.features.schema import get_feature_columns, get_probability_column, get_prediction_column
 
 
 log = get_logger(__name__)
@@ -68,8 +68,8 @@ class AsteroidPredictor:
 
         # Build result DataFrame
         result = df.copy()
-        result[PREDICTION_COLUMN] = predictions.astype(int)
-        result[PROBABILITY_COLUMN] = probabilities
+        result[get_prediction_column()] = predictions.astype(int)
+        result[get_probability_column()] = probabilities
         result["model_version"] = self._model_version
 
         return result
