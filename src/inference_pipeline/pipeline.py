@@ -6,6 +6,7 @@ from src.common.features.views import AsteroidFeatureView
 from src.inference_pipeline.predictor import AsteroidPredictor
 from src.common.features.repositories import AsteroidPredictionsRepository
 from src.common.features.schema import get_identity_columns
+from src.common.features.schema import get_prediction_column, get_probability_column
 from src.utils import get_logger
 
 
@@ -115,7 +116,7 @@ class InferencePipeline:
 
         cols_to_save = (
                 get_identity_columns()
-                + ["predicted_hazardous", "hazard_probability", "model_version", "source"]
+                + [get_prediction_column(), get_probability_column(), "model_version", "source"]
         )
         predictions_to_save = predictions[
             [c for c in cols_to_save if c in predictions.columns]

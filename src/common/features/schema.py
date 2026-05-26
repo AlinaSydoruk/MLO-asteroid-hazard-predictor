@@ -62,3 +62,12 @@ def get_all_columns() -> list[str]:
         + get_feature_columns()
         + [get_label_column()]
     )
+
+def get_prediction_column() -> str:
+    return "predicted_hazardous"
+
+def get_probability_column() -> str:
+    return "hazard_probability"
+
+def get_join_keys() -> list[str]:
+    return ["asteroid_id", "close_approach_date"]

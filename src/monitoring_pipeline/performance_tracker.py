@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
-
+from src.common.features.schema import get_label_column, get_prediction_column, get_probability_column, get_join_keys
 from src.utils import get_logger
 
 log = get_logger(__name__)
@@ -13,18 +13,18 @@ class PerformanceTracker:
         self,
         old_predictions: pd.DataFrame,
         current_labels: pd.DataFrame,
-        join_key: str = "asteroid_id",
-        label_col: str = "is_potentially_hazardous",
-        pred_col: str = "pred_label",
-        proba_col: str = "pred_proba",
+        join_keys: list[str] = None,
+        label_col: str = get_label_column(),
+        pred_col: str = get_prediction_column(),
+        proba_col: str = get_probability_column(),
     ) -> dict:
         if len(old_predictions) == 0 or len(current_labels) == 0:
             return {"f1": None, "precision": None, "recall": None, "auc": None,
                     "n_evaluated": 0}
-
+        join_keys = join_keys or get_join_keys()
         merged = old_predictions.merge(
-            current_labels[[join_key, label_col]],
-            on=join_key, how="inner",
+            current_labels[[join_keys, label_col]],
+            on=join_keys, how="inner",
         )
         if len(merged) == 0:
             log.warning("No overlap between old predictions and current labels.")

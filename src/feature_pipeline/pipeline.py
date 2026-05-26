@@ -1,7 +1,7 @@
 """Feature Pipeline orchestrator."""
 import argparse
 import pandas as pd
-
+from src.config import FEATURE_VIEW_NAME, FEATURE_VIEW_VERSION
 from src.feature_pipeline.nasa_client import NASAClient
 from src.feature_pipeline.asteroid_fetcher import AsteroidFetcher
 from src.feature_pipeline.asteroid_parser import AsteroidParser
@@ -29,6 +29,8 @@ class FeaturePipeline:
             connection=connection,
         )
         self.feature_view = FeatureViewRepository(
+            name=FEATURE_VIEW_NAME,
+            version=FEATURE_VIEW_VERSION,
             connection=connection,
             feature_group_repo=self.feature_group,
         )

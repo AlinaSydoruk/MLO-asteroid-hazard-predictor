@@ -9,6 +9,8 @@ from src.config import MODEL_NAME, MODEL_ALIAS
 from src.common.mlflow.connection import MLflowConnectionManager
 from src.common.features.schema import get_feature_columns
 from src.utils import get_logger
+from src.common.features.schema import get_feature_columns, PREDICTION_COLUMN, PROBABILITY_COLUMN
+
 
 log = get_logger(__name__)
 
@@ -51,7 +53,6 @@ class AsteroidPredictor:
 
         run = client.get_run(version.run_id)
         self._training_cutoff = run.data.params.get("training_cutoff_date")
-        log.info(f"Champion model v{self._model_version} loaded.")
 
     def predict(self, df: pd.DataFrame) -> pd.DataFrame:
         """ Generate predictions for asteroid features. """
@@ -67,8 +68,8 @@ class AsteroidPredictor:
 
         # Build result DataFrame
         result = df.copy()
-        result["predicted_hazardous"] = predictions.astype(int)
-        result["hazard_probability"] = probabilities
+        result[PREDICTION_COLUMN] = predictions.astype(int)
+        result[PROBABILITY_COLUMN] = probabilities
         result["model_version"] = self._model_version
 
         return result
