@@ -10,7 +10,7 @@ import xgboost as xgb
 from mlflow.models import infer_signature
 
 from src.config import MODEL_NAME, MODEL_ALIAS
-from src.training_pipeline.mlflow.connection import MLflowConnectionManager
+from src.common.mlflow.connection import MLflowConnectionManager
 from src.utils import get_logger
 
 log = get_logger(__name__)

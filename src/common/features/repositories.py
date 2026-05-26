@@ -8,7 +8,7 @@ from src.common.hopsworks.connection_manager import HopsworksConnectionManager
 from src.common.hopsworks.feature_group_repo import FeatureGroupRepository
 from src.utils import get_logger
 import pandas as pd
-
+from src.config import PREDICTIONS_GROUP_NAME, PREDICTIONS_GROUP_VERSION
 log = get_logger(__name__)
 
 
@@ -46,8 +46,6 @@ class AsteroidFeaturesDedupRepository(FeatureGroupRepository):
             description="One row per asteroid (most recent close approach) — training source",
             connection=connection,
         )
-
-
     def dedup_and_insert(self, df: pd.DataFrame) -> None:
 
         if df.empty:
@@ -61,3 +59,20 @@ class AsteroidFeaturesDedupRepository(FeatureGroupRepository):
             f"Dedup: {len(df)} raw rows → {len(dedup_df)} unique asteroids"
         )
         self.insert(dedup_df)
+
+
+
+class AsteroidPredictionsRepository(FeatureGroupRepository):
+    """Feature group storing daily hazard predictions from the inference pipeline."""
+
+    def __init__(self, connection: HopsworksConnectionManager = None):
+        super().__init__(
+            name=PREDICTIONS_GROUP_NAME,
+            version=PREDICTIONS_GROUP_VERSION,
+            primary_key=["asteroid_id", "close_approach_date"],
+            event_time="close_approach_date",
+            description="Daily hazard predictions for asteroids",
+            connection=connection,
+        )
+
+
