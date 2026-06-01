@@ -66,8 +66,8 @@ def load(start_str: str, end_str: str):
     if stats["total"] == 0:
         if start == end == date.today():
             msg = (
-                "⏳ No predictions for today yet"
-                "Try **Last 7d** to see recent predictions."
+                "### ⏳ No predictions for today yet\n\n "
+                "Try **Last 7d** to see recent predictions. "
             )
         else:
             msg = "No predictions in this range."

@@ -12,6 +12,10 @@ log = get_logger(__name__)
 
 class PredictionsService:
     """Reads predictions from Hopsworks and prepares them for display."""
+    DISPLAY_COLUMNS = [
+        "Asteroid", "Close Approach", "Discovered",
+        "Status", "Hazard %", "Source", "ID",
+    ]
 
     def __init__(self, connection: HopsworksConnectionManager = None):
         self.connection = connection or HopsworksConnectionManager()
@@ -106,7 +110,8 @@ class PredictionsService:
     @staticmethod
     def format_for_display(df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
-            return df
+            return pd.DataFrame(columns=PredictionsService.DISPLAY_COLUMNS)
+
         df = df.sort_values("hazard_probability", ascending=False).copy()
         df["status"] = df["predicted_hazardous"].map({1: "Hazardous", 0: "Safe"})
         df["hazard_probability"] = (df["hazard_probability"] * 100).round(2)
