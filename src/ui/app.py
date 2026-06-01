@@ -67,7 +67,7 @@ def load(start_str: str, end_str: str):
         if start == end == date.today():
             msg = (
                 "⏳ No predictions for today yet"
-                "runs at 08:00 UTC. Try **Last 7d** to see recent predictions."
+                "Try **Last 7d** to see recent predictions."
             )
         else:
             msg = "No predictions in this range."
