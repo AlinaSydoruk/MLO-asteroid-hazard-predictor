@@ -44,3 +44,11 @@ services:
     container_name: asteroid-monitoring-pipeline
     env_file: .env.local
     command: python -m src.monitoring_pipeline.pipeline
+
+  tests:
+    build: .
+    container_name: asteroid-tests
+    env_file: .env.local
+    volumes:
+      - ./tests:/app/tests
+    command: python -m pytest tests/ -v
