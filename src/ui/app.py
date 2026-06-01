@@ -57,7 +57,7 @@ def load(start_str: str, end_str: str):
         start = date.fromisoformat(start_str)
         end = date.fromisoformat(end_str)
     except ValueError:
-        return None, _stat_html({}), "Invalid date format (use YYYY-MM-DD)"
+        return gr.update(visible=False), _stat_html({}), "Invalid date format (use YYYY-MM-DD)"
 
     df_raw  = service.get_by_range(start, end)
     stats   = service.compute_stats(df_raw)
@@ -66,15 +66,15 @@ def load(start_str: str, end_str: str):
     if stats["total"] == 0:
         if start == end == date.today():
             msg = (
-                "### ⏳ No predictions for today yet\n\n "
-                "Try **Last 7d** to see recent predictions. "
+                "### ⏳ No predictions for today yet\n\n"
+                "Try **Last 7d** or **All History** to see existing predictions."
             )
         else:
-            msg = "No predictions in this range."
-    else:
-        msg = f"Loaded **{stats['total']}** predictions"
+            msg = "### No predictions found in this date range."
+        return gr.update(visible=False), _stat_html(stats), msg
 
-    return df_view, _stat_html(stats), msg
+    msg = f"Loaded **{stats['total']}** predictions"
+    return gr.update(value=df_view, visible=True), _stat_html(stats), msg
 
 def load_all():
     service = get_service()
@@ -82,8 +82,12 @@ def load_all():
     stats   = service.compute_stats(df_raw)
     df_view = service.format_for_display(df_raw)
     total   = stats.get("total", 0)
-    msg = f"Loaded **{total}** predictions (full history)" if total else "No predictions found."
-    return df_view, _stat_html(stats), msg
+
+    if total == 0:
+        return gr.update(visible=False), _stat_html(stats), "### ℹ️ No predictions found."
+
+    msg = f"Loaded **{total}** predictions (full history)"
+    return gr.update(value=df_view, visible=True), _stat_html(stats), msg
 
 def preset(days: int):
     today = date.today()
