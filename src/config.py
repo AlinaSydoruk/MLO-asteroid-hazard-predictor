@@ -89,6 +89,8 @@ TRAINING_CUTOFF_DAYS_BACK = 7
 WEEKLY_RETRAIN_DAY = 6           # 0=Mon, 6=Sun
 WEEKLY_RETRAIN_HOUR_UTC = 6      # Sunday 06:00 UTC
 
+UI_DEFAULT_LOOKBACK_DAYS = 7
+
 # ─────────────────────────────────────────
 # Monitoring
 # ─────────────────────────────────────────
@@ -100,3 +102,5 @@ PERFORMANCE_LAG_DAYS = 30            # how far back to check predictions for gro
 
 P_VALUE_THRESHOLD = 0.05
 EXPECTED_MIN_ROWS_PER_DAY =5
+
+

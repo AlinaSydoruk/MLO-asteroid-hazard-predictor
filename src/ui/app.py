@@ -4,6 +4,7 @@ import gradio as gr
 
 from src.ui.predictions_service import PredictionsService
 from src.utils import get_logger
+from src.config import UI_DEFAULT_LOOKBACK_DAYS
 
 log = get_logger(__name__)
 
@@ -61,7 +62,18 @@ def load(start_str: str, end_str: str):
     df_raw  = service.get_by_range(start, end)
     stats   = service.compute_stats(df_raw)
     df_view = service.format_for_display(df_raw)
-    msg = f"Loaded **{stats['total']}** predictions" if stats['total'] else "No predictions in this range."
+
+    if stats["total"] == 0:
+        if start == end == date.today():
+            msg = (
+                "⏳ No predictions for today yet"
+                "runs at 08:00 UTC. Try **Last 7d** to see recent predictions."
+            )
+        else:
+            msg = "No predictions in this range."
+    else:
+        msg = f"Loaded **{stats['total']}** predictions"
+
     return df_view, _stat_html(stats), msg
 
 def load_all():
@@ -115,8 +127,8 @@ with gr.Blocks(theme=theme, css=CSS, title="Asteroid Hazard Predictor") as app:
 
     with gr.Row():
         with gr.Column(scale=1):
-            start_in = gr.Textbox(label="Start", value=date.today().isoformat())
-            end_in   = gr.Textbox(label="End",   value=date.today().isoformat())
+            start_in = gr.Textbox(label="Start", value=(date.today() - timedelta(days=UI_DEFAULT_LOOKBACK_DAYS)).isoformat())
+            end_in = gr.Textbox(label="End", value=date.today().isoformat())
             with gr.Row():
                 btn_today = gr.Button("Today",      size="sm")
                 btn_7     = gr.Button("Last 7d",    size="sm")
@@ -135,9 +147,13 @@ with gr.Blocks(theme=theme, css=CSS, title="Asteroid Hazard Predictor") as app:
     btn_7.click(    lambda: preset(7),  outputs=[start_in, end_in])
     btn_all.click(load_all, outputs=[table, stats_box, status])
     load_btn.click(load, inputs=[start_in, end_in], outputs=[table, stats_box, status])
-    app.load(lambda: load(date.today().isoformat(), date.today().isoformat()),
-             outputs=[table, stats_box, status])
-
+    app.load(
+        lambda: load(
+            (date.today() - timedelta(days=UI_DEFAULT_LOOKBACK_DAYS)).isoformat(),
+            date.today().isoformat(),
+        ),
+        outputs=[table, stats_box, status],
+    )
 
 def main():
     app.launch(server_name="0.0.0.0", server_port=7860)
