@@ -96,7 +96,7 @@ class PredictionsService:
             "safe": int((df["predicted_hazardous"] == 0).sum()),
             "predicted": int((df["source"] == "model_prediction").sum()),
             "avg_prob": float(df["hazard_probability"].mean()),
-            "model": f"v{df['model_version'].iloc[0]}",
+            "model": self.get_champion_model_version(),
             "next_train": self.get_time_until_next_train(),
             "history_days": self.get_history_days(),
             "training_cutoff": cutoff,
@@ -133,3 +133,14 @@ class PredictionsService:
             "source": "Source",
             "asteroid_id": "ID",
         })
+
+    def get_champion_model_version(self) -> str:
+        """Get the version number of the current champion from MLflow."""
+        try:
+            from src.config import MODEL_NAME, MODEL_ALIAS
+            MLflowConnectionManager().connect()
+            client = mlflow.tracking.MlflowClient()
+            v = client.get_model_version_by_alias(MODEL_NAME, MODEL_ALIAS)
+            return f"v{v.version}"
+        except Exception:
+            return "—"
